@@ -1,0 +1,85 @@
+<html lang="ru"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Sudoku Solver</title>
+<style>
+:root{color-scheme:dark;--bg:#111827;--panel:#1f2937;--line:#64748b;--accent:#38bdf8;--text:#f8fafc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:18px;max-width:760px;margin-inline:auto}
+h1{font-size:27px;margin:8px 0}p{line-height:1.45;color:#cbd5e1}.panel{background:var(--panel);border-radius:16px;padding:16px;margin:14px 0}
+button,.filebtn{background:var(--accent);color:#082f49;border:0;border-radius:10px;padding:12px 14px;font-weight:700;font-size:15px;cursor:pointer;display:inline-block}
+button.secondary{background:#334155;color:white}button:disabled{opacity:.5}
+input[type=file]{max-width:100%;margin:10px 0}
+#grid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:0;border:2px solid #e2e8f0;max-width:540px;margin:14px auto}
+.cell{min-width:0;width:100%;aspect-ratio:1;text-align:center;background:#f8fafc;color:#111827;border:0;border-right:1px solid #94a3b8;border-bottom:1px solid #94a3b8;border-radius:0;font-size:clamp(16px,4.7vw,26px);padding:0}
+.cell:nth-child(3n){border-right:3px solid #334155}.cell:nth-child(9n){border-right:0}.cell:nth-child(n+19):nth-child(-n+27),.cell:nth-child(n+46):nth-child(-n+54){border-bottom:3px solid #334155}
+.cell.given{font-weight:800;background:#dbeafe}.cell.solved{color:#0369a1;background:#e0f2fe}
+.status{white-space:pre-wrap;background:#0b1220;border-radius:10px;padding:12px;color:#e2e8f0;overflow-wrap:anywhere}
+.actions{display:flex;flex-wrap:wrap;gap:8px}.small{font-size:13px;color:#94a3b8}
+</style>
+</head>
+<body>
+<h1>Sudoku Solver</h1>
+<p>Выбери скриншот, распознай цифры, исправь ошибки при необходимости и получи решение. Лучше сначала обрезать скриншот так, чтобы квадрат судоку занимал почти всё изображение.</p>
+<section class="panel">
+<strong>1. Загрузить скриншот</strong><br>
+<input id="photo" type="file" accept="image/*">
+<div class="actions">
+<button id="recognize">Распознать цифры</button>
+<button class="secondary" id="clear">Очистить поле</button>
+</div>
+<p class="small">Распознавание выполняется в браузере через Tesseract.js при подключении к интернету. OCR может ошибаться — проверь поле перед решением.</p>
+</section>
+<section class="panel">
+<strong>2. Проверь распознанную сетку</strong>
+<div id="grid" aria-label="Сетка судоку"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 1, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 2, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 3, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 4, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 5, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 6, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 7, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 8, столбец 9"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 1"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 2"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 3"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 4"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 5"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 6"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 7"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 8"><input class="cell" inputmode="numeric" maxlength="1" aria-label="Строка 9, столбец 9"></div>
+<div class="actions">
+<button id="solve">Решить судоку</button>
+<button class="secondary" id="moves">Список ходов</button>
+<button class="secondary" id="copy">Копировать решение</button>
+</div>
+<div id="status" class="status" style="margin-top:12px">Загрузи скриншот или введи числа вручную. Ноль и пустая клетка означают пустое поле.</div>
+</section>
+<section class="panel">
+<strong>3. Решение и ввод</strong>
+<p>iOS не разрешает этой веб-странице нажимать клетки в другой игре. Можно использовать список ходов как подсказку; автоматические нажатия внутри стороннего приложения недоступны.</p>
+<div id="moveList" class="status">После решения здесь появится список.</div>
+</section>
+<script>
+const gridEl=document.querySelector('#grid'), statusEl=document.querySelector('#status'), moveEl=document.querySelector('#moveList');
+let values=Array(81).fill(0), original=Array(81).fill(0), solution=null, tesseractReady=null;
+for(let i=0;i<81;i++){const inp=document.createElement('input');inp.className='cell';inp.inputMode='numeric';inp.maxLength=1;inp.setAttribute('aria-label',`Строка ${Math.floor(i/9)+1}, столбец ${i%9+1}`);inp.addEventListener('input',()=>{let n=inp.value.replace(/[^1-9]/g,'').slice(-1);inp.value=n;values[i]=n?+n:0;original[i]=values[i];inp.classList.remove('solved');solution=null;});gridEl.appendChild(inp)}
+function render(sol=null){[...gridEl.children].forEach((el,i)=>{el.value=(sol?sol[i]:values[i])||'';el.classList.toggle('given',!!original[i]);el.classList.toggle('solved',!!sol&&!original[i]&&!!sol[i]);});}
+function validBoard(a){for(let r=0;r<9;r++){let s=a.slice(r*9,r*9+9).filter(Boolean);if(new Set(s).size!==s.length)return false}
+for(let c=0;c<9;c++){let s=[];for(let r=0;r<9;r++)s.push(a[r*9+c]);s=s.filter(Boolean);if(new Set(s).size!==s.length)return false}
+for(let br=0;br<3;br++)for(let bc=0;bc<3;bc++){let s=[];for(let r=0;r<3;r++)for(let c=0;c<3;c++)s.push(a[(br*3+r)*9+bc*3+c]);s=s.filter(Boolean);if(new Set(s).size!==s.length)return false}return true}
+function candidates(a,i){let r=Math.floor(i/9),c=i%9,used=new Set();for(let k=0;k<9;k++){used.add(a[r*9+k]);used.add(a[k*9+c]);}let br=Math.floor(r/3)*3,bc=Math.floor(c/3)*3;for(let y=0;y<3;y++)for(let x=0;x<3;x++)used.add(a[(br+y)*9+bc+x]);let out=[];for(let n=1;n<=9;n++)if(!used.has(n))out.push(n);return out}
+function solveSudoku(input){let a=input.slice();if(!validBoard(a))return null;function backtrack(){let best=-1,opts=null;for(let i=0;i<81;i++)if(!a[i]){let cs=candidates(a,i);if(!cs.length)return false;if(!opts||cs.length<opts.length){best=i;opts=cs;if(cs.length===1)break}}if(best<0)return true;for(let n of opts){a[best]=n;if(backtrack())return true;a[best]=0}return false}return backtrack()?a:null}
+document.querySelector('#clear').onclick=()=>{values=Array(81).fill(0);original=values.slice();solution=null;render();statusEl.textContent='Поле очищено.';moveEl.textContent='После решения здесь появится список.'};
+document.querySelector('#solve').onclick=()=>{values=[...gridEl.children].map(e=>e.value?+e.value:0);if(!validBoard(values)){statusEl.textContent='Ошибка: есть повторяющиеся цифры в строке, столбце или блоке 3×3. Исправь их.';return}solution=solveSudoku(values);if(!solution){statusEl.textContent='Решение не найдено. Проверь распознавание исходных цифр.';return}render(solution);statusEl.textContent='Готово! Решение найдено. Синим отмечены заполненные клетки.';makeMoves()};
+function makeMoves(){if(!solution){moveEl.textContent='Сначала реши судоку.';return}let lines=[];for(let n=1;n<=9;n++){let cells=[];for(let i=0;i<81;i++)if(!original[i]&&solution[i]===n)cells.push(`R${Math.floor(i/9)+1}C${i%9+1}`);if(cells.length)lines.push(`${n}: ${cells.join(', ')}`)}moveEl.textContent=lines.join('\n')||'Все клетки уже заполнены.'}
+document.querySelector('#moves').onclick=makeMoves;
+document.querySelector('#copy').onclick=async()=>{if(!solution){statusEl.textContent='Сначала реши судоку.';return}let txt=solution.map((n,i)=>i%9===8?String(n):String(n)+' ').join('\n');try{await navigator.clipboard.writeText(txt);statusEl.textContent='Решение скопировано.'}catch(e){statusEl.textContent='Не удалось скопировать автоматически. Выдели и скопируй решение вручную.';moveEl.textContent=txt}};
+document.querySelector('#recognize').onclick=async()=>{
+ const file=document.querySelector('#photo').files[0];if(!file){statusEl.textContent='Сначала выбери скриншот.';return}
+ const btn=document.querySelector('#recognize');btn.disabled=true;statusEl.textContent='Загружаю OCR…';
+ try{
+  if(!window.Tesseract){await new Promise((resolve,reject)=>{let s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=resolve;s.onerror=reject;document.head.appendChild(s)})}
+  statusEl.textContent='Распознаю цифры…';
+  const url=URL.createObjectURL(file);const img=new Image();img.src=url;await img.decode();
+  const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;ctx.drawImage(img,0,0);
+  const result=await Tesseract.recognize(canvas,'eng',{logger:m=>{if(m.status==='recognizing text')statusEl.textContent=`Распознаю цифры… ${Math.round((m.progress||0)*100)}%`}});
+  let next=Array(81).fill(0), conflicts=[];
+  const words=result.data.words||[];
+  for(const w of words){const text=(w.text||'').trim();if(!/^[1-9]$/.test(text))continue;const b=w.bbox;const cx=(b.x0+b.x1)/2/canvas.width,cy=(b.y0+b.y1)/2/canvas.height;
+    const col=Math.floor(cx*9),row=Math.floor(cy*9);if(row<0||row>8||col<0||col>8)continue;const idx=row*9+col;
+    if(next[idx]&&next[idx]!==+text)conflicts.push(`R${row+1}C${col+1}`);else next[idx]=+text;
+  }
+  URL.revokeObjectURL(url);values=next;original=next.slice();solution=null;render();
+  statusEl.textContent=`OCR завершён. Найдено цифр: ${next.filter(Boolean).length} из 81.\nЕсли цифры попали не в те клетки, значит изображение не обрезано точно по квадрату или распознавание ошиблось. Исправь сетку вручную и нажми «Решить судоку».`;
+ }catch(e){statusEl.textContent='Не удалось выполнить OCR. Проверь интернет и попробуй ещё раз. Можно ввести числа вручную.';console.error(e)}
+ finally{btn.disabled=false}
+};
+</script>
+
+</body></html>
